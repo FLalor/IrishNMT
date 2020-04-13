@@ -1,10 +1,10 @@
 #
 # Adapted from https://github.com/facebookresearch/MIXER/blob/master/prepareData.sh
 
-echo 'Cloning Moses github repository (for tokenization scripts)...'
+echo 'Cloning Moses'
 git clone https://github.com/moses-smt/mosesdecoder.git
 
-echo 'Cloning Subword NMT repository (for BPE pre-processing)...'
+echo 'Cloning'
 git clone https://github.com/rsennrich/subword-nmt.git
 
 SCRIPTS=mosesdecoder/scripts    #points to the tokeniser script
@@ -14,7 +14,6 @@ CLEAN=$SCRIPTS/training/clean-corpus-n.perl   #points to cleaning script
 BPEROOT=subword-nmt/subword_nmt   #points to byte pair encoding script
 BPE_TOKENS=10000    #sets how many bpe tokens allowed
 
-#url for the corpus files
 URL="http://opus.nlpl.eu/DGT/v2019/en-ga_sample.html"
 GZ=en-ga.tgz
 
@@ -26,24 +25,23 @@ fi
 src=en  #source language english
 tgt=ga  #target language gaeilge
 lang=en-ga #lang = english-gaeilge
-prep=iwslt14.tokenized.en-ga #sets prep to that directory
-tmp=$prep/tmp #sets tmp to iwslt14.tokenized.en-ga/tmp (new folder)
+prep=iwslt14.tokenized.en-ga 
+tmp=$prep/tmp 
 orig=orig
 
 mkdir -p $orig $tmp $prep #makes directory orig/iwslt14.tokenized.en-ga/tmp/iwslt14.tokenized.en-ga
 
 echo "Downloading data from ${URL}..."
 cd $orig
-wget "$URL" #downloads the corpus
-
-if [ -f $GZ ]; then #prints whether the data has been successfully download
+wget "$URL" 
+if [ -f $GZ ]; then 
     echo "Data successfully downloaded."
 else
     echo "Data not successfully downloaded."
     exit
 fi
 
-tar zxvf $GZ #extracts the downloaded files
+tar zxvf $GZ 
 cd ..
 
 echo "pre-processing train data..."
@@ -51,15 +49,15 @@ for l in $src $tgt; do  #for l in en, ga
     f=train.tags.$lang.$l #f = train.tags.en-ga.en (and f=train.tags.de-en.en)
     tok=train.tags.$lang.tok.$l #tok=train.tags.en-ga.tok.en(-and- ga)
 
-    cat $orig/$lang/$f | \  #opens orig/de-en/train.tags.en-ga.en(ga)
-    grep -v '<url>' | \ #I haven't a clue what this does lol
+    cat $orig/$lang/$f | \  
+    grep -v '<url>' | \ 
     grep -v '<talkid>' | \
     grep -v '<keywords>' | \
-    sed -e 's/<title>//g' | \ #replaces any occurence of '<title>' with an empty space. Repeat for the other seds
+    sed -e 's/<title>//g' | \ 
     sed -e 's/<\/title>//g' | \
     sed -e 's/<description>//g' | \
     sed -e 's/<\/description>//g' | \
-    perl $TOKENIZER -threads 8 -l $l > $tmp/$tok #tokenises 
+    perl $TOKENIZER -threads 8 -l $l > $tmp/$tok 
     echo ""
 done
 perl $CLEAN -ratio 1.5 $tmp/train.tags.$lang.tok $src $tgt $tmp/train.tags.$lang.clean 1 175
