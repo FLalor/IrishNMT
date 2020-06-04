@@ -1,0 +1,26 @@
+!pip3 install fairseq 
+import fairseq 
+
+Preprocess
+(
+%cd #source of your data
+
+TEXT = "" #the corpus itself
+
+#Tell Fairseq which files are for what (valid, train or test?)
+
+!fairseq-preprocess --source-lang en --target-lang ga \
+--trainpref $TEXT/train --validpref $TEXT/dev --testpref $TEXT/test \
+--destdir data-bin/(folder)
+)
+
+Train
+(
+%cd #see above
+!mkdir -p checkpoints/lstm
+#Configure the model for training
+!CUDA_VISIBLE_DEVICES=0 fairseq-train data-bin-2/
+  --lr 5e-4 --lr-scheduler inverse_sqrt --optimizer adam\
+  --clip-norm 0.1 --dropout 0.2 --max-tokens 4096 --fp16\
+  --arch lstm --save-dir checkpoints/lstm04.06.2020
+)
